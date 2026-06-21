@@ -42,13 +42,9 @@ _ANY_STRING = (str, bytes)
 
 def handle_extra_types(
         obj: Union[decimal.Decimal, 'MultiDict']
-) -> Union[float, Dict]:
-    # Lambda will automatically serialize decimals so we need
-    # to support that as well.
+) -> Union[str, Dict]:
     if isinstance(obj, decimal.Decimal):
-        return float(obj)
-    # This is added for backwards compatibility.
-    # It will keep only the last value for every key as it used to.
+        return str(obj)
     if isinstance(obj, MultiDict):
         return dict(obj)
     raise TypeError('Object of type %s is not JSON serializable'
@@ -164,7 +160,7 @@ ALL_ERRORS = [
 class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
     """A mapping of key to list of values.
 
-    Accessing it in the usual way will return the last value in the list.
+    Accessing it in the usual way will return the first value in the list.
     Calling getlist will return a list of all the values associated with
     the same key.
     """
@@ -177,7 +173,7 @@ class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
 
     def __getitem__(self, k: Any) -> Any:
         try:
-            return self._dict[k][-1]
+            return self._dict[k][0]
         except IndexError:
             raise KeyError(k)
 
@@ -189,6 +185,12 @@ class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
 
     def getlist(self, k: Any) -> List:
         return list(self._dict[k])
+
+    def get(self, k: Any, default: Any = None) -> Any:
+        try:
+            return self[k]
+        except KeyError:
+            return default
 
     def __len__(self) -> int:
         return len(self._dict)
@@ -438,8 +440,11 @@ class Request(object):
     def json_body(self) -> Any:
         if self.headers.get('content-type', '').startswith('application/json'):
             if self._json_body is None:
+                raw_body = self.raw_body
+                if not raw_body:
+                    return None
                 try:
-                    self._json_body = json.loads(self.raw_body)
+                    self._json_body = json.loads(raw_body)
                 except ValueError:
                     raise BadRequestError('Error Parsing JSON')
             return self._json_body
@@ -1574,17 +1579,39 @@ class Rate(ScheduleExpression):
     HOURS: str = 'HOURS'
     DAYS: str = 'DAYS'
 
+    _VALID_UNITS = {
+        'minute': 'minutes',
+        'minutes': 'minutes',
+        'hour': 'hours',
+        'hours': 'hours',
+        'day': 'days',
+        'days': 'days',
+    }
+
     def __init__(self, value: int, unit: str) -> None:
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise ValueError(
+                "Rate value must be an integer, got: %s" % value)
+        if value <= 0:
+            raise ValueError(
+                "Rate value must be a positive integer, got: %s" % value)
+        if not isinstance(unit, str):
+            raise ValueError(
+                "Rate unit must be a string, got: %s" % type(unit).__name__)
+        normalized_unit = unit.strip().lower()
+        if normalized_unit not in self._VALID_UNITS:
+            raise ValueError(
+                "Invalid rate unit: %r. Must be one of: "
+                "minute, minutes, hour, hours, day, days" % unit)
         self.value: int = value
-        self.unit: str = unit
+        self.unit: str = self._VALID_UNITS[normalized_unit].upper()
 
     def to_string(self) -> str:
-        unit = self.unit.lower()
+        plural_unit = self.unit.lower()
         if self.value == 1:
-            # Remove the 's' from the end if it's singular.
-            # This is required by the cloudwatch events API.
-            unit = unit[:-1]
-        return 'rate(%s %s)' % (self.value, unit)
+            singular_unit = plural_unit[:-1]
+            return 'rate(%s %s)' % (self.value, singular_unit)
+        return 'rate(%s %s)' % (self.value, plural_unit)
 
 
 class Cron(ScheduleExpression):
@@ -2024,18 +2051,20 @@ class CloudWatchEvent(BaseLambdaEvent):
 class WebsocketEvent(BaseLambdaEvent):
     def __init__(self, event_dict: Dict[str, Any], context: Any):
         super(WebsocketEvent, self).__init__(event_dict, context)
-        self._json_body: Optional[Dict[str, Any]] = None
+        self._json_body: Optional[Any] = None
 
     def _extract_attributes(self, event_dict: Dict[str, Any]) -> None:
         request_context = event_dict['requestContext']
         self.domain_name: str = request_context['domainName']
         self.stage: str = request_context['stage']
         self.connection_id: str = request_context['connectionId']
-        self.body: str = str(event_dict.get('body'))
+        self.body: Optional[str] = event_dict.get('body')
 
     @property
-    def json_body(self) -> Dict[str, Any]:
+    def json_body(self) -> Any:
         if self._json_body is None:
+            if not self.body:
+                return None
             try:
                 self._json_body = json.loads(self.body)
             except ValueError:

@@ -539,7 +539,7 @@ def test_can_call_to_dict_on_request_with_querystring(sample_app,
     # out a few keys as a basic sanity test.
     assert response['method'] == 'GET'
     assert response['query_params'] is not None
-    assert response['query_params']['key'] == 'val2'
+    assert response['query_params']['key'] == 'val1'
     assert response['query_params']['key2'] == 'val'
     # We also want to verify that to_dict() is always
     # JSON serializable so we check we can roundtrip
@@ -2557,9 +2557,9 @@ def test_multidict_getlist_does_raise_keyerror():
     {'key': ['value1', 'value2', 'value3']},
     {'key': ['value1', 'value2', None]}
 ])
-def test_multidict_returns_lastvalue(input_dict):
+def test_multidict_returns_firstvalue(input_dict):
     d = MultiDict(input_dict)
-    assert d['key'] == input_dict['key'][-1]
+    assert d['key'] == input_dict['key'][0]
 
 
 @pytest.mark.parametrize('input_dict', [
@@ -2603,7 +2603,7 @@ def test_multidict_list_wont_change_source(input_dict):
         {'key': ['value1', 'value2', 'value3'],
          'key2': [[]]},
         'key',
-        'value3',
+        'value1',
         {'key2': []},
     ),
 ])
