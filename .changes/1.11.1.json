@@ -1,0 +1,15 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "blueprint",
+      "description": "Fix mouting blueprints with root routes (#1230)",
+      "type": "bugfix"
+    },
+    {
+      "category": "rest-api",
+      "description": "Add support for multi-value headers responses (#1205)",
+      "type": "feature"
+    }
+  ]
+}

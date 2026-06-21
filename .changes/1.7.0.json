@@ -1,0 +1,30 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "packaging",
+      "description": "Fix packaging multiple local directories as dependencies (#1047)",
+      "type": "bugfix"
+    },
+    {
+      "category": "event-source",
+      "description": "Add support for passing SNS ARNs to ``on_sns_message`` (#1048)",
+      "type": "feature"
+    },
+    {
+      "category": "blueprint",
+      "description": "Add support for Blueprints (#1023)",
+      "type": "feature"
+    },
+    {
+      "category": "config",
+      "description": "Add support for opting-in to experimental features (#1053)",
+      "type": "feature"
+    },
+    {
+      "category": "event-source",
+      "description": "Provide Lambda context in event object (#856)",
+      "type": "feature"
+    }
+  ]
+}

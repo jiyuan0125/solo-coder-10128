@@ -1,0 +1,25 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "config",
+      "description": "Add support for stage independent lambda configuration (#1162)",
+      "type": "feature"
+    },
+    {
+      "category": "event-source",
+      "description": "Add support for subscribing to CloudWatch Events (#1126)",
+      "type": "feature"
+    },
+    {
+      "category": "event-source",
+      "description": "Add a ``description`` argument to CloudWatch schedule events (#1155)",
+      "type": "feature"
+    },
+    {
+      "category": "rest-api",
+      "description": "Fix deployment of API Gateway resource policies (#1220)",
+      "type": "bugfix"
+    }
+  ]
+}

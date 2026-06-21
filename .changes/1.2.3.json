@@ -1,0 +1,15 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "dependency",
+      "description": "Add support for pip 10 (#808)",
+      "type": "enhancement"
+    },
+    {
+      "category": "policy",
+      "description": "Update ``policies.json`` file (#817)",
+      "type": "enhancement"
+    }
+  ]
+}

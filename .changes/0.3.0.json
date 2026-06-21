@@ -1,0 +1,30 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "rest-api",
+      "description": "Fix bug with case insensitive headers (#129)",
+      "type": "bugfix"
+    },
+    {
+      "category": "CORS",
+      "description": "Add initial support for CORS (#133)",
+      "type": "feature"
+    },
+    {
+      "category": "deployment",
+      "description": "Only add API gateway permissions if needed (#48)",
+      "type": "enhancement"
+    },
+    {
+      "category": "policy",
+      "description": "Fix error when dict comprehension is encountered during policy generation (#131)",
+      "type": "bugfix"
+    },
+    {
+      "category": "CLI",
+      "description": "Add ``--version`` and ``--debug`` options to the chalice CLI",
+      "type": "enhancement"
+    }
+  ]
+}

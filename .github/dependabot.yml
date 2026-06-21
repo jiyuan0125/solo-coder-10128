@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    allow:
+      - dependency-name: "pip"
+      - dependency-name: "click"
+    groups:
+      python:
+        update-types:
+          - "minor"
+          - "patch"
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    groups:
+      github-actions:
+        update-types:
+          - "minor"
+          - "patch"
+    cooldown:
+      default-days: 7

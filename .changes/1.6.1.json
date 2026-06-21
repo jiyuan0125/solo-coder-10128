@@ -1,0 +1,20 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "local",
+      "description": "Fix local mode issue with unicode responses and Content-Length (#910)",
+      "type": "bugfix"
+    },
+    {
+      "category": "dev",
+      "description": "Fix issue with ``requirements-dev.txt`` not setting up a working\ndev environment (#920)",
+      "type": "enhancement"
+    },
+    {
+      "category": "dependencies",
+      "description": "Add support for pip 18 (#910)",
+      "type": "enhancement"
+    }
+  ]
+}

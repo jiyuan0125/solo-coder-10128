@@ -1,0 +1,30 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "websocket",
+      "description": "Add experimental support for websockets (#1017)",
+      "type": "feature"
+    },
+    {
+      "category": "rest-api",
+      "description": "API Gateway Endpoint Type Configuration (#1160)",
+      "type": "feature"
+    },
+    {
+      "category": "rest-api",
+      "description": "API Gateway Resource Policy Configuration (#1160)",
+      "type": "feature"
+    },
+    {
+      "category": "packaging",
+      "description": "Add --merge-template option to package command (#1195)",
+      "type": "feature"
+    },
+    {
+      "category": "packaging",
+      "description": "Add support for packaging via terraform (#1129)",
+      "type": "feature"
+    }
+  ]
+}

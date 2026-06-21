@@ -1,0 +1,60 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "dependencies",
+      "description": "Update PIP to support up to 19.1.x (#1104)",
+      "type": "enhancement"
+    },
+    {
+      "category": "rest-api",
+      "description": "Fix handling of more complex Accept headers for binary\ncontent types (#1078)",
+      "type": "bugfix"
+    },
+    {
+      "category": "rest-api",
+      "description": "Raise TypeError when trying to serialize an unserializable\ntype (#1100)",
+      "type": "enhancement"
+    },
+    {
+      "category": "policy",
+      "description": "Update ``policies.json`` file (#1110)",
+      "type": "enhancement"
+    },
+    {
+      "category": "rest-api",
+      "description": "Support repeating values in the query string (#1131)",
+      "type": "feature"
+    },
+    {
+      "category": "packaging",
+      "description": "Add layer support to chalice package (#1130)",
+      "type": "feature"
+    },
+    {
+      "category": "rest-api",
+      "description": "Fix bug with route ``name`` kwarg raising a ``TypeError`` (#1112)",
+      "type": "bugfix"
+    },
+    {
+      "category": "logging",
+      "description": "Change exceptions to always be logged at the ERROR level (#969)",
+      "type": "enhancement"
+    },
+    {
+      "category": "CLI",
+      "description": "Fix bug handling exceptions during ``chalice invoke`` on\nPython 3.7 (#1139)",
+      "type": "bugfix"
+    },
+    {
+      "category": "rest-api",
+      "description": "Add support for API Gateway compression (#672)",
+      "type": "bugfix"
+    },
+    {
+      "category": "packaging",
+      "description": "Add support for both relative and absolute paths for\n``--package-dir`` (#940)",
+      "type": "enhancement"
+    }
+  ]
+}

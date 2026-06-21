@@ -1,0 +1,10 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "policy",
+      "description": "Add support for S3 upload_file/download_file in\npolicy generator (#889)",
+      "type": "feature"
+    }
+  ]
+}

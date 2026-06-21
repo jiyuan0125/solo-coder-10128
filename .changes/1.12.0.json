@@ -1,0 +1,20 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "CLI",
+      "description": "Add ``generate-models`` command (#1245)",
+      "type": "feature"
+    },
+    {
+      "category": "websocket",
+      "description": "Add ``close`` and ``info`` commands to websocket api (#1259)",
+      "type": "enhancement"
+    },
+    {
+      "category": "dependencies",
+      "description": "Bump upper bound on PIP to ``<19.4`` (#1273, #1272)",
+      "type": "enhancement"
+    }
+  ]
+}
