@@ -1,6 +1,7 @@
 # pylint: disable=too-many-lines
 import re
 import json
+import decimal
 from collections import OrderedDict
 
 from typing import List, Dict, Any, Optional, Union, Tuple, Set, cast  # noqa
@@ -1454,6 +1455,8 @@ class PlanEncoder(json.JSONEncoder):
         # type: (Any) -> Any
         if isinstance(o, StringFormat):
             return o.template
+        if isinstance(o, decimal.Decimal):
+            return str(o)
         return o
 
 

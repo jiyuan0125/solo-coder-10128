@@ -1594,12 +1594,19 @@ class Rate(ScheduleExpression):
         self.unit: str = unit
 
     def _normalize_unit(self, unit: str) -> str:
-        unit = unit.lower()
+        unit = unit.strip().lower()
         if unit.endswith('s'):
             unit = unit[:-1]
+        if unit not in self._SINGULAR:
+            raise ValueError(
+                'Invalid rate unit: %r. Must be one of: MINUTES, HOURS, DAYS '
+                '(case-insensitive, singular or plural).' % unit)
         return unit
 
     def to_string(self) -> str:
+        if not isinstance(self.value, int) or self.value <= 0:
+            raise ValueError(
+                'Rate value must be a positive integer, got: %r' % self.value)
         base = self._normalize_unit(self.unit)
         if self.value == 1:
             unit = self._SINGULAR[base]
@@ -2052,13 +2059,16 @@ class WebsocketEvent(BaseLambdaEvent):
         self.domain_name: str = request_context['domainName']
         self.stage: str = request_context['stage']
         self.connection_id: str = request_context['connectionId']
-        self.body: str = str(event_dict.get('body'))
+        self.body: Optional[str] = event_dict.get('body')
 
     @property
-    def json_body(self) -> Dict[str, Any]:
+    def json_body(self) -> Optional[Dict[str, Any]]:
         if self._json_body is None:
+            raw = self.body
+            if not raw:
+                return None
             try:
-                self._json_body = json.loads(self.body)
+                self._json_body = json.loads(raw)
             except ValueError:
                 raise BadRequestError('Error Parsing JSON')
         return self._json_body
