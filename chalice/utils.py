@@ -8,6 +8,7 @@ import re
 import shutil
 import sys
 import tarfile
+import decimal
 from datetime import datetime, timedelta
 import subprocess
 from os import PathLike  # noqa
@@ -89,6 +90,13 @@ def record_deployed_values(
         outfile.write(data.encode('utf-8'))
 
 
+def _json_encoder_default(obj: Any) -> Any:
+    if isinstance(obj, decimal.Decimal):
+        return str(obj)
+    raise TypeError('Object of type %s is not JSON serializable'
+                    % obj.__class__.__name__)
+
+
 def serialize_to_json(data: Any) -> str:
     """Serialize to pretty printed JSON.
 
@@ -97,7 +105,8 @@ def serialize_to_json(data: Any) -> str:
     to serialize JSON to disk.
 
     """
-    return json.dumps(data, indent=2, separators=(',', ': ')) + '\n'
+    return json.dumps(data, indent=2, separators=(',', ': '),
+                      default=_json_encoder_default) + '\n'
 
 
 class ChaliceZipFile(zipfile.ZipFile):

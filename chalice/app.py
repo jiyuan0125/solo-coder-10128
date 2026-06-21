@@ -42,13 +42,9 @@ _ANY_STRING = (str, bytes)
 
 def handle_extra_types(
         obj: Union[decimal.Decimal, 'MultiDict']
-) -> Union[float, Dict]:
-    # Lambda will automatically serialize decimals so we need
-    # to support that as well.
+) -> Union[str, Dict]:
     if isinstance(obj, decimal.Decimal):
-        return float(obj)
-    # This is added for backwards compatibility.
-    # It will keep only the last value for every key as it used to.
+        return str(obj)
     if isinstance(obj, MultiDict):
         return dict(obj)
     raise TypeError('Object of type %s is not JSON serializable'
@@ -164,7 +160,7 @@ ALL_ERRORS = [
 class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
     """A mapping of key to list of values.
 
-    Accessing it in the usual way will return the last value in the list.
+    Accessing it in the usual way will return the first value in the list.
     Calling getlist will return a list of all the values associated with
     the same key.
     """
@@ -177,7 +173,7 @@ class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
 
     def __getitem__(self, k: Any) -> Any:
         try:
-            return self._dict[k][-1]
+            return self._dict[k][0]
         except IndexError:
             raise KeyError(k)
 
@@ -190,11 +186,20 @@ class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
     def getlist(self, k: Any) -> List:
         return list(self._dict[k])
 
+    def get(self, k: Any, default: Any = None) -> Any:
+        try:
+            return self[k]
+        except KeyError:
+            return default
+
     def __len__(self) -> int:
         return len(self._dict)
 
     def __iter__(self) -> Iterator:
         return iter(self._dict)
+
+    def __contains__(self, k: Any) -> bool:
+        return k in self._dict
 
     def __repr__(self) -> str:
         return 'MultiDict(%s)' % self._dict
@@ -209,18 +214,28 @@ class CaseInsensitiveMapping(Mapping):
     def __init__(self, mapping: Union[Dict[str, Any], MultiDict]) -> None:
         mapping = mapping or {}
         self._dict = {k.lower(): v for k, v in mapping.items()}
+        self._original_keys = {k.lower(): k for k in mapping.keys()}
 
     def __getitem__(self, key: str) -> Any:
         return self._dict[key.lower()]
 
     def __iter__(self) -> Iterator:
-        return iter(self._dict)
+        return iter(self._original_keys.values())
 
     def __len__(self) -> int:
         return len(self._dict)
 
+    def __contains__(self, key: Any) -> bool:
+        return key.lower() in self._dict
+
+    def get(self, key: str, default: Any = None) -> Any:
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
     def __repr__(self) -> str:
-        return 'CaseInsensitiveMapping(%s)' % repr(self._dict)
+        return 'CaseInsensitiveMapping(%s)' % repr(dict(self))
 
 
 class Authorizer(object):
@@ -438,10 +453,14 @@ class Request(object):
     def json_body(self) -> Any:
         if self.headers.get('content-type', '').startswith('application/json'):
             if self._json_body is None:
-                try:
-                    self._json_body = json.loads(self.raw_body)
-                except ValueError:
-                    raise BadRequestError('Error Parsing JSON')
+                raw_body = self.raw_body
+                if raw_body is None or (isinstance(raw_body, (str, bytes)) and not raw_body):
+                    self._json_body = None
+                else:
+                    try:
+                        self._json_body = json.loads(raw_body)
+                    except ValueError:
+                        raise BadRequestError('Error Parsing JSON')
             return self._json_body
 
     def to_dict(self) -> Dict[Any, Any]:
@@ -455,7 +474,15 @@ class Request(object):
         # JSON serializable, so we need to remove the CaseInsensitive dict.
         copied['headers'] = dict(copied['headers'])
         if copied['query_params'] is not None:
-            copied['query_params'] = dict(copied['query_params'])
+            # Use dict comprehension to properly convert MultiDict
+            # with the new first-value semantics.
+            copied['query_params'] = {
+                k: copied['query_params'][k]
+                for k in copied['query_params']
+            }
+        else:
+            # Ensure query_params is present even if None
+            copied['query_params'] = None
         return copied
 
     def to_original_event(self) -> Dict[str, Any]:
@@ -1574,17 +1601,45 @@ class Rate(ScheduleExpression):
     HOURS: str = 'HOURS'
     DAYS: str = 'DAYS'
 
+    _VALID_UNITS = {
+        'MINUTE': 'MINUTES',
+        'MINUTES': 'MINUTES',
+        'HOUR': 'HOURS',
+        'HOURS': 'HOURS',
+        'DAY': 'DAYS',
+        'DAYS': 'DAYS',
+    }
+    _SINGULAR_FORMS = {
+        'MINUTES': 'MINUTE',
+        'HOURS': 'HOUR',
+        'DAYS': 'DAY',
+    }
+
     def __init__(self, value: int, unit: str) -> None:
         self.value: int = value
         self.unit: str = unit
+        self._validate()
+
+    def _validate(self) -> None:
+        if not isinstance(self.value, int) or self.value <= 0:
+            raise ValueError(
+                "Rate value must be a positive integer, got: %s"
+                % self.value)
+        normalized_unit = self.unit.strip().upper()
+        if normalized_unit not in self._VALID_UNITS:
+            raise ValueError(
+                "Invalid rate unit: %s. Valid units are: "
+                "MINUTE, MINUTES, HOUR, HOURS, DAY, DAYS"
+                % self.unit)
 
     def to_string(self) -> str:
-        unit = self.unit.lower()
+        normalized_unit = self.unit.strip().upper()
+        canonical_unit = self._VALID_UNITS[normalized_unit]
         if self.value == 1:
-            # Remove the 's' from the end if it's singular.
-            # This is required by the cloudwatch events API.
-            unit = unit[:-1]
-        return 'rate(%s %s)' % (self.value, unit)
+            display_unit = self._SINGULAR_FORMS[canonical_unit]
+        else:
+            display_unit = canonical_unit
+        return 'rate(%s %s)' % (self.value, display_unit.lower())
 
 
 class Cron(ScheduleExpression):
@@ -2034,12 +2089,15 @@ class WebsocketEvent(BaseLambdaEvent):
         self.body: str = str(event_dict.get('body'))
 
     @property
-    def json_body(self) -> Dict[str, Any]:
+    def json_body(self) -> Optional[Dict[str, Any]]:
         if self._json_body is None:
-            try:
-                self._json_body = json.loads(self.body)
-            except ValueError:
-                raise BadRequestError('Error Parsing JSON')
+            if self.body is None or self.body == '' or self.body == 'None':
+                self._json_body = None
+            else:
+                try:
+                    self._json_body = json.loads(self.body)
+                except ValueError:
+                    raise BadRequestError('Error Parsing JSON')
         return self._json_body
 
 
