@@ -2545,7 +2545,7 @@ def test_multidict_pop_raises_del_error():
         del d['key']
 
 
-def test_multidict_getlist_returns_empty_list_for_missing_key():
+def test_multidict_getlist_returns_empty_for_missing_key():
     d = MultiDict({})
     assert d.getlist('key') == []
 

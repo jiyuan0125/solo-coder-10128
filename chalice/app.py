@@ -183,10 +183,8 @@ class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
     def __delitem__(self, k: Any) -> None:
         del self._dict[k]
 
-    def getlist(self, k: Any, default: Optional[Any] = None) -> List:
+    def getlist(self, k: Any) -> List:
         if k not in self._dict:
-            if default is not None:
-                return default
             return []
         return list(self._dict[k])
 
