@@ -2545,10 +2545,9 @@ def test_multidict_pop_raises_del_error():
         del d['key']
 
 
-def test_multidict_getlist_does_raise_keyerror():
+def test_multidict_getlist_returns_empty_list_for_missing_key():
     d = MultiDict({})
-    with pytest.raises(KeyError):
-        d.getlist('key')
+    assert d.getlist('key') == []
 
 
 @pytest.mark.parametrize('input_dict', [

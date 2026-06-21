@@ -187,7 +187,7 @@ class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
         if k not in self._dict:
             if default is not None:
                 return default
-            raise KeyError(k)
+            return []
         return list(self._dict[k])
 
     def __len__(self) -> int:
