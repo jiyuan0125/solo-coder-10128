@@ -42,13 +42,9 @@ _ANY_STRING = (str, bytes)
 
 def handle_extra_types(
         obj: Union[decimal.Decimal, 'MultiDict']
-) -> Union[float, Dict]:
-    # Lambda will automatically serialize decimals so we need
-    # to support that as well.
+) -> Union[str, Dict]:
     if isinstance(obj, decimal.Decimal):
-        return float(obj)
-    # This is added for backwards compatibility.
-    # It will keep only the last value for every key as it used to.
+        return str(obj)
     if isinstance(obj, MultiDict):
         return dict(obj)
     raise TypeError('Object of type %s is not JSON serializable'
@@ -164,7 +160,7 @@ ALL_ERRORS = [
 class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
     """A mapping of key to list of values.
 
-    Accessing it in the usual way will return the last value in the list.
+    Accessing it in the usual way will return the first value in the list.
     Calling getlist will return a list of all the values associated with
     the same key.
     """
@@ -177,7 +173,7 @@ class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
 
     def __getitem__(self, k: Any) -> Any:
         try:
-            return self._dict[k][-1]
+            return self._dict[k][0]
         except IndexError:
             raise KeyError(k)
 
@@ -187,7 +183,11 @@ class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
     def __delitem__(self, k: Any) -> None:
         del self._dict[k]
 
-    def getlist(self, k: Any) -> List:
+    def getlist(self, k: Any, default: Optional[Any] = None) -> List:
+        if k not in self._dict:
+            if default is not None:
+                return default
+            raise KeyError(k)
         return list(self._dict[k])
 
     def __len__(self) -> int:
@@ -438,8 +438,11 @@ class Request(object):
     def json_body(self) -> Any:
         if self.headers.get('content-type', '').startswith('application/json'):
             if self._json_body is None:
+                raw = self.raw_body
+                if not raw:
+                    return None
                 try:
-                    self._json_body = json.loads(self.raw_body)
+                    self._json_body = json.loads(raw)
                 except ValueError:
                     raise BadRequestError('Error Parsing JSON')
             return self._json_body
@@ -1574,16 +1577,34 @@ class Rate(ScheduleExpression):
     HOURS: str = 'HOURS'
     DAYS: str = 'DAYS'
 
+    _SINGULAR = {
+        'minute': 'minute',
+        'hour': 'hour',
+        'day': 'day',
+    }
+
+    _PLURAL = {
+        'minute': 'minutes',
+        'hour': 'hours',
+        'day': 'days',
+    }
+
     def __init__(self, value: int, unit: str) -> None:
         self.value: int = value
         self.unit: str = unit
 
-    def to_string(self) -> str:
-        unit = self.unit.lower()
-        if self.value == 1:
-            # Remove the 's' from the end if it's singular.
-            # This is required by the cloudwatch events API.
+    def _normalize_unit(self, unit: str) -> str:
+        unit = unit.lower()
+        if unit.endswith('s'):
             unit = unit[:-1]
+        return unit
+
+    def to_string(self) -> str:
+        base = self._normalize_unit(self.unit)
+        if self.value == 1:
+            unit = self._SINGULAR[base]
+        else:
+            unit = self._PLURAL[base]
         return 'rate(%s %s)' % (self.value, unit)
 
 

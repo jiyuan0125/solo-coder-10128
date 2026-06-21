@@ -108,15 +108,18 @@ class Config(object):
 
     @property
     def profile(self) -> str:
-        return self._chain_lookup('profile')
+        return self._chain_lookup('profile',
+                                  varies_per_chalice_stage=True)
 
     @property
     def app_name(self) -> str:
-        return self._chain_lookup('app_name')
+        return self._chain_lookup('app_name',
+                                  varies_per_chalice_stage=True)
 
     @property
     def project_dir(self) -> str:
-        return self._chain_lookup('project_dir')
+        return self._chain_lookup('project_dir',
+                                  varies_per_chalice_stage=True)
 
     @property
     def chalice_app(self) -> Chalice:

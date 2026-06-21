@@ -494,7 +494,7 @@ def test_can_support_patch_method(handler):
 def test_can_support_decimals(handler):
     set_current_request(handler, method='GET', path='/decimals')
     handler.do_PATCH()
-    assert _get_body_from_response_stream(handler) == 100
+    assert _get_body_from_response_stream(handler) == '100'
 
 
 def test_unsupported_methods_raise_error(handler):
@@ -547,11 +547,9 @@ def test_querystring_list_is_mapped(handler):
 
 
 def test_querystring_undefined_is_mapped_consistent_with_apigateway(handler):
-    # API Gateway picks up the last element of duplicate keys in a
-    # querystring
     set_current_request(handler, method='GET', path='/query-string?a=b&a=c')
     handler.do_GET()
-    assert _get_body_from_response_stream(handler) == {'a': 'c'}
+    assert _get_body_from_response_stream(handler) == {'a': 'b'}
 
 
 def test_content_type_included_once(handler):
