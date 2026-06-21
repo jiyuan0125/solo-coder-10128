@@ -1,0 +1,26 @@
+{
+  "schema-version": "0.2",
+  "summary": "Check out the [upgrade notes for 0.6.0](https://aws.github.io/chalice/upgrading#v0-6-0)\nfor more detailed information about changes in this release.\n\n",
+  "changes": [
+    {
+      "category": "local",
+      "description": "Add port parameter to local command (#220)",
+      "type": "feature"
+    },
+    {
+      "category": "packaging",
+      "description": "Add support for binary vendored packages (#182, #106, #42)",
+      "type": "feature"
+    },
+    {
+      "category": "rest-api",
+      "description": "Add support for customizing the returned HTTP response (#240, #218, #110, #30, #226)",
+      "type": "feature"
+    },
+    {
+      "category": "packaging",
+      "description": "Always inject latest runtime to allow for chalice upgrades (#245)",
+      "type": "enhancement"
+    }
+  ]
+}

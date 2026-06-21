@@ -1,0 +1,40 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "dependencies",
+      "description": "Add support for pip 18.2 (#991)",
+      "type": "enhancement"
+    },
+    {
+      "category": "logging",
+      "description": "Add more detailed debug logs to the packager. (#934)",
+      "type": "enhancement"
+    },
+    {
+      "category": "python",
+      "description": "Add support for python3.7 (#992)",
+      "type": "feature"
+    },
+    {
+      "category": "rest-api",
+      "description": "Support bytes for the application/json binary type (#988)",
+      "type": "feature"
+    },
+    {
+      "category": "rest-api",
+      "description": "Use more compact JSON representation by default for dicts (#958)",
+      "type": "enhancement"
+    },
+    {
+      "category": "logging",
+      "description": "Log internal exceptions as errors (#254)",
+      "type": "enhancement"
+    },
+    {
+      "category": "rest-api",
+      "description": "Generate swagger documentation from docstrings (#574)",
+      "type": "feature"
+    }
+  ]
+}

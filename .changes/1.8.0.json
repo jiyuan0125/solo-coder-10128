@@ -1,0 +1,15 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "packaging",
+      "description": "Fall back to pure python version of yaml parser\nwhen unable to compile C bindings for PyYAML (#1074)",
+      "type": "bugfix"
+    },
+    {
+      "category": "packaging",
+      "description": "Add support for Lambda layers. (#1001)",
+      "type": "feature"
+    }
+  ]
+}
