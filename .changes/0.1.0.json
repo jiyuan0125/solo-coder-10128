@@ -1,0 +1,50 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "packaging",
+      "description": "Require ``virtualenv`` as a package dependency. (#33)",
+      "type": "enhancement"
+    },
+    {
+      "category": "CLI",
+      "description": "Add ``--profile`` option when creating a new project (#28)",
+      "type": "enhancement"
+    },
+    {
+      "category": "rest-api",
+      "description": "Add support for more error codes exceptions (#34)",
+      "type": "enhancement"
+    },
+    {
+      "category": "rest-api",
+      "description": "Improve error validation when routes containing a\ntrailing ``/`` char (#65)",
+      "type": "enhancement"
+    },
+    {
+      "category": "rest-api",
+      "description": "Validate duplicate route entries (#79)",
+      "type": "enhancement"
+    },
+    {
+      "category": "policy",
+      "description": "Ignore lambda expressions in policy analyzer (#74)",
+      "type": "enhancement"
+    },
+    {
+      "category": "rest-api",
+      "description": "Print original error traceback in debug mode (#50)",
+      "type": "enhancement"
+    },
+    {
+      "category": "rest-api",
+      "description": "Add support for authenticate routes (#14)",
+      "type": "feature"
+    },
+    {
+      "category": "policy",
+      "description": "Add ability to disable IAM role management (#61)",
+      "type": "feature"
+    }
+  ]
+}

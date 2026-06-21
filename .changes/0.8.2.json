@@ -1,0 +1,15 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "CLI",
+      "description": "Fix issue where ``--api-gateway-stage`` was being\nignored  (#325)",
+      "type": "bugfix"
+    },
+    {
+      "category": "CLI",
+      "description": "Add ``chalice delete`` command (#40)",
+      "type": "feature"
+    }
+  ]
+}

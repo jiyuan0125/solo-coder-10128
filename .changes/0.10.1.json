@@ -1,0 +1,15 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "deployment",
+      "description": "Fix deployment issue for projects deployed with versions\nprior to 0.10.0 (#387)",
+      "type": "bugfix"
+    },
+    {
+      "category": "policy",
+      "description": "Fix crash in analyzer when encountering genexprs and listcomps (#263)",
+      "type": "bugfix"
+    }
+  ]
+}

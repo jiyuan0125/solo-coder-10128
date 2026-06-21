@@ -1,0 +1,20 @@
+{
+  "schema-version": "0.2",
+  "changes": [
+    {
+      "category": "packaging",
+      "description": "Only use alphanumeric characters for event names in SAM template (#450)",
+      "type": "bugfix"
+    },
+    {
+      "category": "config",
+      "description": "Print useful error message when config.json is invalid (#458)",
+      "type": "enhancement"
+    },
+    {
+      "category": "rest-api",
+      "description": "Fix api gateway stage being set incorrectly in non-default chalice stage\n([#470](https://github.com/aws/chalice/issues/470))",
+      "type": "bugfix"
+    }
+  ]
+}
