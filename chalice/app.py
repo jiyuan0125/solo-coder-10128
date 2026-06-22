@@ -184,7 +184,10 @@ class MultiDict(MutableMapping):  # pylint: disable=too-many-ancestors
         del self._dict[k]
 
     def getlist(self, k: Any) -> List:
-        return list(self._dict[k])
+        try:
+            return list(self._dict[k])
+        except KeyError:
+            return []
 
     def get(self, k: Any, default: Any = None) -> Any:
         try:
